@@ -58,6 +58,7 @@ Integration with Patreon will allow writers to offer StorieStreams to their foll
   - decimal
   - datetime, time -
 - Pillow
+- psycopg2
   
 
 ----- 
@@ -154,5 +155,15 @@ for saffari on iphone "onorientationchange event and querying window.orientation
 - Drag and drop CSS styling to content? (Paralax images! :wink: ) 
 - Allow Reader to highlight sentences 
 - Allow Reader to share public StoriePebbles to their social media? 
+
+
+
+==========
+#Notes  
+- Need a back/undo button 
+- possibly need three user-types (Author, Reader, Moderation/not-top-level admin)
+- Will either need to build in moderation functionality to apps or create a model that can moderate/both
+- 
+
 
 
