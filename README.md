@@ -44,7 +44,7 @@ Integration with Patreon will allow writers to offer StorieStreams to their foll
 
 ### Possible Dependencies: 
 - Django 2.0 
-- PostgresSQL
+- PostgresSQL 10.3
 - virtualenv with virtualenvwrapper
 - Python 3.6 
 - JavaScript ES6
@@ -59,6 +59,10 @@ Integration with Patreon will allow writers to offer StorieStreams to their foll
   - datetime, time -
 - Pillow
 - psycopg2
+- GRUNT
+- whitenoise 
+- sentry_for_error_reporting
+- keep_local_envs_in_vcs
   
 
 ----- 
