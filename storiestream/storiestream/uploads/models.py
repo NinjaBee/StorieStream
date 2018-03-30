@@ -1,16 +1,14 @@
 from django.db import models
+import os
+from django.conf import settings
 
 # Create your models here.
 
 
-class Document(models.Model):
-    upload_by = models.ForeignKey('auth.User', related_name='uploaded_documents')
-    datestamp = models.DateTimeField(auto_now_add=True)
-    document = models.Field(upload_to='uploads/')
-    # ...
 
+class SavedFile(models.Model):
+    name = models.CharField(max_length=100)
+    file = models.FileField(upload_to='files/')
 
-class MainModel(models.Model):
-    title = models.CharField(max_length=42)
-    document = models.ForeignKey(Document)
-    #...
+    def __str__(self):
+        return self.name

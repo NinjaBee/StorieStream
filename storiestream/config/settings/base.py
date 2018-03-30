@@ -63,6 +63,7 @@ DJANGO_APPS = [
     'django.contrib.admin',
 ]
 THIRD_PARTY_APPS = [
+
     'crispy_forms',
     'allauth',
     'allauth.account',
@@ -70,6 +71,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
 ]
 LOCAL_APPS = [
+    'storiestream.uploads.apps.UploadsConfig',
     'storiestream.users.apps.UsersConfig',
     # Your stuff: custom apps go here
 ]

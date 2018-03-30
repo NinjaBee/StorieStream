@@ -3,6 +3,5 @@ from . import views
 
 app_name = 'uploads'
 urlpatterns = [
-    path('storiestream/storiestream/uploads', views.uploads, name='uploads')
+    path('storiestream/storiestream/uploads', views.index, name='uploads')
 ]
-
