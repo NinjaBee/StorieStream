@@ -9,14 +9,14 @@ StorieStream is a webapp focused on providing writers with a platform to transfo
 
 Integration with Patreon will allow writers to offer StorieStreams to their followers as a reward or bonus for becoming a Patreon. It incliudes a registration page, login, and dashboard displaying current and ongoing projects for the writer as well as one (possibly two) editing areas. Once content has been uploaded, the writer will be able to use the editing panel to add interactive features to their content. 
 
-####Editing features may include: 
+#### Editing features may include: 
 
-- Mapping a visual non-vertical path for authors content.
-- Named location markers to allow both writer and reader to jump to specific locations (for example, the start of chapters or specific visual/audio content). 
+- Mapping a visual non-vertical path for authors content (writing).
+- Named location markers to allow both writer and reader to jump to specific locations (for example, the start of chapters or specific visual/audio content).
 - Adding stock background images and textures. 
 - Adding stock sounds such as non-propriatary music or ocean waves crashing in the background. Two potential options are a player the reader can press "play" on, and an automatic loop that fades in when the reader gets to a designated area, and fades out as they leave it.  
 
-####Stretch goal editing features may include:
+#### Stretch goal editing features may include:
 
 - User uploaded images
 - User uploaded sounds/music 
@@ -85,8 +85,9 @@ for saffari on iphone "onorientationchange event and querying window.orientation
 ## Schedule 
 
 #### Start Project: _Monday, March 26th, 2018_ 
-- Create project in virtualenv 
-- Create user registration and login app 
+- ~~Create project in virtualenv~~ 
+- ~~Create user registration and login app~~ _may scrap current project and redo_
+##### Notes 
   - Include security measures where possible for user authentication, etc. Double check later.
   - Include an area to either add an "alpha tester" code for free access or "betta tester" for discounted access
   - Link to TOS page 
@@ -96,17 +97,17 @@ for saffari on iphone "onorientationchange event and querying window.orientation
   - Disabling an account should send a notification email that the site is having issues 
   - "BL" the account should 
 
-#### Complete Milestone 1.0 by _Thursday, March 30th, 2018_ 
-- One view/app to upload text
-- One view/app to view and scroll along text set to a path. 
+#### Complete Milestone 1.0 by Tuesday April 3rd 
+- ~~Create editing app~~
+- View/app to view and scroll along text set to a path. 
 
 #### Milestone 1.1 _Friday, March 30th, 2018_ 
-- Add view/page that holds unfinished projects
+- Add view/page that holds unfinished projects _possible this is included in the model that uploads content to be edited_
 - Add library apps for Author StorieBeds and Reader Pebble Collections 
-- Make sure library apps have genre filtering capacity/tagging capacity
+- Make sure library apps have genre filtering capacity/tagging capacity 
 
 #### Complete Milestone 1.2 by _Monday, April 3rd, 2018_ 
-- Add editing view or modify upload area to be an editing area + upload area
+- Add editing view or modify upload area to be an ~~editing area + upload area~~
 - Add ability for author to set path. 
 - Make sure author can work on multiple projects/select projects. 
 
