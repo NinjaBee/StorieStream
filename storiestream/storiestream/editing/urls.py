@@ -5,3 +5,4 @@ app_name = 'editing'
 urlpatterns = [
     path('storiestream/storiestream/editing', views.index, name='editing')
 ]
+

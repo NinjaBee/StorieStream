@@ -11,6 +11,6 @@ def index(request):
         model.save()
     files = SavedFile.objects.all()
     print(files[0].file.size)
-    return render(request, 'uploads/index.html', {'files': files})
+    return render(request, 'editing/index.html', {'files': files})
 
 

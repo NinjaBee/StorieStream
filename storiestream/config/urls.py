@@ -18,7 +18,6 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
-    path('uploads/', include('storiestream.uploads.urls', namespace='uploads')),
     path('editing/', include('storiestream.editing.urls', namespace='edit')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -71,7 +71,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
 ]
 LOCAL_APPS = [
-    'storiestream.uploads.apps.UploadsConfig',
+    'storiestream.editing.apps.EditingConfig',
     'storiestream.users.apps.UsersConfig',
     # Your stuff: custom apps go here
 ]
@@ -214,7 +214,7 @@ EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.s
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL regex.
-ADMIN_URL = r'^admin/'
+ADMIN_URL = 'admin/'
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [
     ("""Brianna Harris""", 'brianna@briannaharris.net'),
