@@ -42,7 +42,7 @@ Integration with Patreon will allow writers to offer StorieStreams to their foll
 
 
 
-### Possible Dependencies: 
+### Likely Using the Following: 
 - Django 2.0 
 - PostgresSQL 10.3
 - virtualenv with virtualenvwrapper
