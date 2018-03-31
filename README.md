@@ -164,7 +164,7 @@ for saffari on iphone "onorientationchange event and querying window.orientation
 
 
 ---
-#Notes  
+# Notes  
 - Need a back/undo button 
 - possibly need three user-types (Author, Reader, Moderation/not-top-level admin)
 - Will either need to build in moderation functionality to apps or create a model that can moderate/both
