@@ -1,187 +1,190 @@
-
-
-
-
-
-
-
-
 <html>
-    <head>
-        <style>
+<head>
+    <style>
 
-            html, body {
-              margin:0;
-              padding:0;
-              width:100%;
-              height:100%;
-            }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-            body {
-              background-color:black;
-              color:white;
-              overflow-x:hidden;
-              overflow-y:hidden;
-            }
+        body {
+            background-color: black;
+            color: white;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
 
-            #container {
+        #container {
             /*   border: 1px solid white; */
-              width:100%;
-              height:100%;
-              overflow: scroll;
-            }
+            width: 100%;
+            height: 100%;
+            overflow: scroll;
+        }
 
+        #container > div {
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
 
-            #container > div {
-              white-space: nowrap;
-              overflow:hidden;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="container"> </div>
+<script>
 
-        <script>
+    function splitText(text, width) {
+        text = text.replace(/\n/g, ' ');
+        // console.log(text);
 
-            function splitText(text, width) {
-              text = text.replace(/\n/g , ' ');
-              // console.log(text);
-
-              let words = text.split(/[ \t]+/); // split on whitespace
-              let lines = [];  // This is an empty array for lines
-              let current_line = '';
-              while (words.length > 0)  {
-                current_line = '';
-                while (true) {
-                  if (words.length > 0 && current_line.length + words[0].length <= width) {
+        let words = text.split(/[ \t]+/); // split on whitespace
+        let lines = [];  // This is an empty array for lines
+        let current_line = '';
+        while (words.length > 0) {
+            current_line = '';
+            while (true) {
+                if (words.length > 0 && current_line.length + words[0].length <= width) {
                     current_line += words.shift() + ' ';
-                  } else {
+                } else {
                     break;
-                  }
                 }
-                lines.push(current_line);
-              }
-              return lines;
             }
+            lines.push(current_line);
+        }
+        return lines;
+    }
 
 
+    // Segments are chuncks of text in multiple divs that are curved (or not) according to mathematical equations.
+    class Segment {
+        constructor(min_t, max_t, xt, yt) {
+            this.min_t = min_t;
+            this.max_t = max_t;
+            this.xt = xt;
+            this.yt = yt;
+        }
 
-            // Segments are chuncks of text in multiple divs that are curved (or not) according to mathematical equations.
-            class Segment {
-              constructor(min_t, max_t, xt, yt) {
-                this.min_t = min_t;
-                this.max_t = max_t;
-                this.xt = xt;
-                this.yt = yt;
-              }
-              getX(t) {
-                t = (t-this.min_t)/(this.max_t - this.min_t);
-                return this.xt(t);
-              }
-              getY(t) {
-                t = (t-this.min_t)/(this.max_t - this.min_t);
-                return this.yt(t);
-              }
-            }
+        getX(t) {
+            t = (t - this.min_t) / (this.max_t - this.min_t);
+            return this.xt(t);
+        }
 
-
-            class GlobalCoordinates {
-              constructor(center_x, center_y, scale) {
-                this.center_x = center_x;
-                this.center_y = center_y;
-                this.scale = scale;
-              }
-              transformX(x) {
-                return this.center_x + this.scale*x;
-              }
-              transformY(y) {
-                return this.center_y + this.scale*y;
-              }
-              invertX(x) {
-                return x/this.scale - this.center_x;
-              }
-              invertY(y) {
-                return y/this.scale - this.center_y;
-              }
-            }
+        getY(t) {
+            t = (t - this.min_t) / (this.max_t - this.min_t);
+            return this.yt(t);
+        }
+    }
 
 
+    class GlobalCoordinates {
+        constructor(center_x, center_y, scale) {
+            this.center_x = center_x;
+            this.center_y = center_y;
+            this.scale = scale;
+        }
+
+        transformX(x) {
+            return this.center_x + this.scale * x;
+        }
+
+        transformY(y) {
+            return this.center_y + this.scale * y;
+        }
+
+        invertX(x) {
+            return x / this.scale - this.center_x;
+        }
+
+        invertY(y) {
+            return y / this.scale - this.center_y;
+        }
+    }
 
 
-
-            // An array of segments our sample text has been split into.
-
+    // An array of segments our sample text has been split into.
 
 
-            class TextPath {
-              constructor(text, container) {
+    class TextPath {
+        constructor(text, container) {
 
-                let segment1 = new Segment(0, 0.2, function(t) {
-                  return 0.0;
-                }, function(t) {
-                  return 100*t;
-                });
+            let segment1 = new Segment(0, 0.2, function (t) {
+                return 0.0;
+            }, function (t) {
+                return 100 * t;
+            });
 
-                let segment2 = new Segment(0.2, 0.8, function(t) {
-                  return 100-100*Math.cos(t*Math.PI/2);
-                }, function(t) {
-                  return 100*Math.sin(t*Math.PI/2);
-                });
+            let segment2 = new Segment(0.2, 0.8, function (t) {
+                return 100 - 100 * Math.cos(t * Math.PI / 2);
+            }, function (t) {
+                return 100 * Math.sin(t * Math.PI / 2);
+            });
 
-                let segment3 = new Segment(0.8, 1.0, function(t) {
-                  return 100*t;
-                }, function(t) {
-                  return 0.0;
-                });
-                this.segments = [segment1, segment2, segment3];
-                let segments = this.segments;
+            let segment3 = new Segment(0.8, 1.0, function (t) {
+                return 100 * t;
+            }, function (t) {
+                return 0.0;
+            });
+            this.segments = [segment1, segment2, segment3];
+            let segments = this.segments;
 
 
-                let lines = splitText(text, width);
+            let lines = splitText(text, width);
 
-                let gc = new GlobalCoordinates(10, 10, 2);
-                this.gc = gc;
-                let segment_index = 0;
+            let gc = new GlobalCoordinates(10, 10, 2);
+            this.gc = gc;
+            let segment_index = 0;
 
-                for (let i=0; i<lines.length; ++i) {
-                  let t = i/(lines.length-1);
-                  if (t >= segments[segment_index].max_t) {
+            for (let i = 0; i < lines.length; ++i) {
+                let t = i / (lines.length - 1);
+                if (t >= segments[segment_index].max_t) {
 
-                    if (segment_index < segments.length-1) {
-                      let end_x = segments[segment_index].xt(1.0);
-                      let end_y = segments[segment_index].yt(1.0);
-                      gc.center_x = gc.transformX(end_x);
-                      gc.center_y = gc.transformY(end_y);
-                      segment_index += 1;
+                    if (segment_index < segments.length - 1) {
+                        let end_x = segments[segment_index].xt(1.0);
+                        let end_y = segments[segment_index].yt(1.0);
+                        gc.center_x = gc.transformX(end_x);
+                        gc.center_y = gc.transformY(end_y);
+                        segment_index += 1;
                     }
-                  }
-                  let div = document.createElement('div');
-                  div.style.position = 'absolute';
-
-                  // todo: take p(t-dt) and p(t+dt) rather than p(t) and p(t+dt)
-                  let dt = 0.01;
-                  let px = gc.transformX(segments[segment_index].getX(t-dt));
-                  let py = gc.transformY(segments[segment_index].getY(t-dt));
-                  let px2 = gc.transformX(segments[segment_index].getX(t+dt));
-                  let py2 = gc.transformY(segments[segment_index].getY(t+dt));
-                  let angle = Math.atan2(py2-py, px2-px) - Math.PI/2;
-
-                  div.style.left = gc.transformX(segments[segment_index].getX(t-dt)) + 'px';
-                  div.style.top = gc.transformY(segments[segment_index].getY(t-dt)) + 'px';
-                  div.style.transform = 'rotate(' + angle + 'rad)';
-                  div.innerText = lines[i];
-                  //div.style.height = line_height + 'px';
-                  div.style.width = '500px';
-                  container.appendChild(div);
                 }
-              }
-              getPoint(t) {
+                let div = document.createElement('div');
+                div.style.position = 'absolute';
 
-              }
+                // todo: take p(t-dt) and p(t+dt) rather than p(t) and p(t+dt)
+                let dt = 0.01;
+                let px = gc.transformX(segments[segment_index].getX(t - dt));
+                let py = gc.transformY(segments[segment_index].getY(t - dt));
+                let px2 = gc.transformX(segments[segment_index].getX(t + dt));
+                let py2 = gc.transformY(segments[segment_index].getY(t + dt));
+                let angle = Math.atan2(py2 - py, px2 - px) - Math.PI / 2;
+
+                div.style.left = gc.transformX(segments[segment_index].getX(t - dt)) + 'px';
+                div.style.top = gc.transformY(segments[segment_index].getY(t - dt)) + 'px';
+                div.style.transform = 'rotate(' + angle + 'rad)';
+                div.innerText = lines[i];
+                //div.style.height = line_height + 'px';
+                div.style.width = '500px';
+                container.appendChild(div);
             }
+        }
 
-            // Sample text
-            let text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tum Piso: Quoniam igitur aliquid omnes, quid Lucius noster? Quae si potest singula consolando levare, universa quo modo sustinebit? Hoc dixerit potius Ennius: Nimium boni est, cui nihil est mali. Tu quidem reddes;
+        getPoint(t) {
+            let starting_point = {x: 0, y: 0};
+            for (let i = 0; i < this.segments.length; ++i) {
+                if (t >= this.segments[i].min_t && t <= this.segments[i].max_t) {
+                    let x = this.segments[i].getX(t);
+                    let y = this.segments[i].getY(t);
+                    return {x: starting_point.x + x, y: starting_point.y + y};
+                }
+                starting_point = {x: this.segments[i].xt(1.0),
+                                    y: this.segments[i].yt(1.0)};
+            }
+            return starting_point;
+        }
+    }
+
+    // Sample text
+    let text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tum Piso: Quoniam igitur aliquid omnes, quid Lucius noster? Quae si potest singula consolando levare, universa quo modo sustinebit? Hoc dixerit potius Ennius: Nimium boni est, cui nihil est mali. Tu quidem reddes;
 
             Quod totum contra est. Quo studio Aristophanem putamus aetatem in litteris duxisse? Quae hic rei publicae vulnera inponebat, eadem ille sanabat. At hoc in eo M. Potius inflammat, ut coercendi magis quam dedocendi esse videantur. Ut proverbia non nulla veriora sint quam vestra dogmata. Cur igitur, cum de re conveniat, non malumus usitate loqui? Cur igitur, inquam, res tam dissimiles eodem nomine appellas?
 
@@ -190,99 +193,84 @@
             Totum genus hoc Zeno et qui ab eo sunt aut non potuerunt aut noluerunt, certe reliquerunt. Quorum sine causa fieri nihil putandum est. Duo Reges: constructio interrete. Istam voluptatem perpetuam quis potest praestare sapienti? Intellegi quidem, ut propter aliam quampiam rem, verbi gratia propter voluptatem, nos amemus; Mihi enim satis est, ipsis non satis. Neque solum ea communia, verum etiam paria esse dixerunt. Huius ego nunc auctoritatem sequens idem faciam. Non igitur bene.`
 
 
-            // In this iteration we are judging width on characters instead of pixels. Will go back to pixels later.
-            let width = 45; // our width we use when making lines, etc.
-            let line_height = 60;
-            let container = document.querySelector('#container'); // This is the div we automatically populate that you can see in the html. We create more than one of these.
+    // In this iteration we are judging width on characters instead of pixels. Will go back to pixels later.
+    let width = 45; // our width we use when making lines, etc.
+    let line_height = 60;
+    let container = document.querySelector('#container'); // This is the div we automatically populate that you can see in the html. We create more than one of these.
 
 
-            text_path = new TextPath(text, container)
+    text_path = new TextPath(text, container)
 
 
-            // function findSegment(t) {
-            //   for (let i=0; i<segments.length; ++i) {
-            //     if (t >= segments[i].min_t && t <= segments[i].max_t) {
-            //       return segments[i];
-            //     }
-            //   }
-            //   return null;
-            // }
+    // function findSegment(t) {
+    //   for (let i=0; i<segments.length; ++i) {
+    //     if (t >= segments[i].min_t && t <= segments[i].max_t) {
+    //       return segments[i];
+    //     }
+    //   }
+    //   return null;
+    // }
 
 
+    ///////////////////////////////////
+    ////// Work on Scrolling /////////
+    /////////////////////////////////
 
 
+    function MouseWheelHandler(e) {
 
+        // cross-browser wheel delta
+        let e = window.event || e; // old IE support
+        let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
-
-
-            ///////////////////////////////////
-            ////// Work on Scrolling /////////
-            /////////////////////////////////
-
-
-
-            function MouseWheelHandler(e) {
-
-                // cross-browser wheel delta
-                let e = window.event || e; // old IE support
-                let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-
-              ////////////
-              let current_t = 0;
-
-
-              current_t += 0.1;
-              let container_px = gc.invertX(segments[segment_index].getX(t-dt));
-              let container_py = gc.invertY(segments[segment_index].getY(t-dt));
-              let container_px2 = gc.invertX(segments[segment_index].getX(t+dt));
-              let container_py2 = gc.invertY(segments[segment_index].getY(t+dt));
-              let container_angle = Math.atan2(py2-py, px2-px) - Math.PI/2;
-
-            }
+        ////////////
+        let current_t = 0;
 
 
 
+        let container_px = gc.invertX(segments[segment_index].getX(t - dt));
+        let container_py = gc.invertY(segments[segment_index].getY(t - dt));
+        let container_px2 = gc.invertX(segments[segment_index].getX(t + dt));
+        let container_py2 = gc.invertY(segments[segment_index].getY(t + dt));
+        let container_angle = Math.atan2(py2 - py, px2 - px) - Math.PI / 2;
 
-            window.onwheel = function(){
+    }
 
-              current_t += 0.1;
-              let container_px = gc.invertX(segments[segment_index].getX(t-dt));
-              let container_py = gc.invertY(segments[segment_index].getY(t-dt));
-              let container_px2 = gc.invertX(segments[segment_index].getX(t+dt));
-              let container_py2 = gc.invertY(segments[segment_index].getY(t+dt));
-              let container_angle = Math.atan2(py2-py, px2-px) - Math.PI/2;
-
-            }
-
-
-
-
-            // Global Coordinate constructor for reference:
-
-            // class GlobalCoordinates {
-            //   constructor(center_x, center_y, scale) {
-            //     this.center_x = center_x;
-            //     this.center_y = center_y;
-            //     this.scale = scale;
-            //   }
-            //   transformX(x) {
-            //     return this.center_x + this.scale*x;
-            //   }
-            //   transformY(y) {
-            //     return this.center_y + this.scale*y;
-            //   }
-            //   invertX(x) {
-            //     return x/this.scale - this.center_x;
-            //   }
-            //   invertY(y) {
-            //     return y/this.scale - this.center_y;
-            //   }
-            // }
+    let current_t = 0.0;
+    window.onwheel = function (evt) {
+        current_t += 0.001*evt.deltaY;
+        let current_pt = text_path.getPoint(current_t);
+        console.log('translate(' + (-current_pt.x) + ',' + (-current_pt.y) + ')');
+        container.style.transform = 'translate(' + (-current_pt.x) + 'px,' + (-current_pt.y) + 'px)';
+    }
 
 
-               // use gc and segments to get an x,y for current_t
-              // translate the container to -x,-y
-              //current_t += 0.1;
-        </script>
-    </body>
+    // Global Coordinate constructor for reference:
+
+    // class GlobalCoordinates {
+    //   constructor(center_x, center_y, scale) {
+    //     this.center_x = center_x;
+    //     this.center_y = center_y;
+    //     this.scale = scale;
+    //   }
+    //   transformX(x) {
+    //     return this.center_x + this.scale*x;
+    //   }
+    //   transformY(y) {
+    //     return this.center_y + this.scale*y;
+    //   }
+    //   invertX(x) {
+    //     return x/this.scale - this.center_x;
+    //   }
+    //   invertY(y) {
+    //     return y/this.scale - this.center_y;
+    //   }
+    // }
+
+
+    // use gc and segments to get an x,y for current_t
+    // translate the container to -x,-y
+    //current_t += 0.1;
+</script>
+</body>
 </html>
