@@ -56,7 +56,7 @@
     }
 
 
-    // Segments are chuncks of text in multiple divs that are curved (or not) according to mathematical equations.
+    // Segments are chunks of text in multiple divs that are curved (or not) according to mathematical equations.
     class Segment {
         constructor(min_t, max_t, xt, yt) {
             this.min_t = min_t;
@@ -64,7 +64,7 @@
             this.xt = xt;
             this.yt = yt;
         }
-
+        // We use this later when styling/twisitng our divs. getX and getY are made essentially the same way.
         getX(t) {
             t = (t - this.min_t) / (this.max_t - this.min_t);
             return this.xt(t);
@@ -102,43 +102,76 @@
     }
 
 
-    // An array of segments our sample text has been split into.
+   // Making a class for point
+    class Point {
+        constructor(x, y, t) {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.t = t || 0.0;
+         }
+        toString() {
+            return '(' + this.x + ', ' + this.y + ', ' + this.t + ')';
+        }
+    }
+    class segmentPoint extends Point {
+        constructor(x, y, segment_t) {
+            super(x, y);
+            this.segment_t = segment_t;
+        }
+    }
 
-
+   // Text path is the twisting-turning text segment constructor.  Currently we have three segments hard coded in. This will need to change.
     class TextPath {
         constructor(text, container) {
+            // The three hard coded segments. Segment length is currently arbitrary, but linked. End of one is the beginning of the next:
 
+            // Segment is starting at t of 0 and going until 0.2
             let segment1 = new Segment(0, 0.2, function (t) {
                 return 0.0;
             }, function (t) {
                 return 100 * t;
             });
 
+            // Segment is starting at t of 0.2 and going until 0.8
             let segment2 = new Segment(0.2, 0.8, function (t) {
                 return 100 - 100 * Math.cos(t * Math.PI / 2);
             }, function (t) {
                 return 100 * Math.sin(t * Math.PI / 2);
             });
 
+            // Segment is starting at t of 0.8 and going until 1.0
             let segment3 = new Segment(0.8, 1.0, function (t) {
                 return 100 * t;
             }, function (t) {
                 return 0.0;
             });
+
+            // Hard coding an array of segments. Once again, this will need to change.
             this.segments = [segment1, segment2, segment3];
+            // simplifying segments for reference.
             let segments = this.segments;
 
-
+            // Calling split text function to get our lines.
             let lines = splitText(text, width);
 
-            let gc = new GlobalCoordinates(10, 10, 2);
+            // Creating a new global coordinate called gc.
+            let gc = new GlobalCoordinates(25, 25, 10);
+
+            // Making the global coordinate (gc) accessible
             this.gc = gc;
+
+            // Starting segment index at 0 and incrementing through the array.
             let segment_index = 0;
 
+            // Itterating through all the lines.
             for (let i = 0; i < lines.length; ++i) {
+                // get our t sub-division based on the number of lines.
                 let t = i / (lines.length - 1);
+
+                // max t is the highest our t can go.
                 if (t >= segments[segment_index].max_t) {
 
+                    // Everything is based on segments here. Unsure if this needs to change. Possible.
                     if (segment_index < segments.length - 1) {
                         let end_x = segments[segment_index].xt(1.0);
                         let end_y = segments[segment_index].yt(1.0);
@@ -147,31 +180,51 @@
                         segment_index += 1;
                     }
                 }
+
+                // creating divs for our lines to live
                 let div = document.createElement('div');
                 div.style.position = 'absolute';
 
+                // This section is where we are adjusting the curve of our divs along a parametric equation.
                 // todo: take p(t-dt) and p(t+dt) rather than p(t) and p(t+dt)
+                // dt is a magic number. Delta t?
                 let dt = 0.01;
-                let px = gc.transformX(segments[segment_index].getX(t - dt));
-                let py = gc.transformY(segments[segment_index].getY(t - dt));
+                // 'point x equals' gc = global coordinates. getX and getY are from class Segment
+                let px = gc.transformX(segments[segment_index].getX(t));
+                // 'point y equals'
+                let py = gc.transformY(segments[segment_index].getY(t));
+                // second point of x
                 let px2 = gc.transformX(segments[segment_index].getX(t + dt));
+                // second point of y
                 let py2 = gc.transformY(segments[segment_index].getY(t + dt));
+                // Find the angle
                 let angle = Math.atan2(py2 - py, px2 - px) - Math.PI / 2;
 
-                div.style.left = gc.transformX(segments[segment_index].getX(t - dt)) + 'px';
-                div.style.top = gc.transformY(segments[segment_index].getY(t - dt)) + 'px';
+                // Positioning the divs. gc = global coordinates. getX and getY are from class Segment.
+                // Hard coded segments in equation will need to change, may be reflected here.
+                div.style.left = gc.transformX(segments[segment_index].getX(t)) + 'px';
+                div.style.top = gc.transformY(segments[segment_index].getY(t)) + 'px';
+                // Rotating div according to the current angle we want
                 div.style.transform = 'rotate(' + angle + 'rad)';
+                // Fill div with enough words for one line.
                 div.innerText = lines[i];
-                //div.style.height = line_height + 'px';
+                // Might be pointless to have line_height
+                div.style.height = line_height + 'px';
+                // It is important that width be constant. When width is adustable by pixels this may not be needed.
                 div.style.width = '500px';
+                // Add new div to our outter div "container"
                 container.appendChild(div);
             }
         }
 
+        // Right now I think all of these are based on an x/y coordinate in the center of the text
+        // which is why it is starting out skewed I think.
         getPoint(t) {
+            // these are some magic numbers.
             let starting_point = {x: 0, y: 0};
             for (let i = 0; i < this.segments.length; ++i) {
                 if (t >= this.segments[i].min_t && t <= this.segments[i].max_t) {
+                    // getX and getY is from our segments
                     let x = this.segments[i].getX(t);
                     let y = this.segments[i].getY(t);
                     return {x: starting_point.x + x, y: starting_point.y + y};
@@ -190,11 +243,17 @@
 
             Et nemo nimium beatus est; Quare obscurentur etiam haec, quae secundum naturam esse dicimus, in vita beata; Cur tantas regiones barbarorum pedibus obiit, tot maria transmisit? Quae contraria sunt his, malane? Sed haec omittamus; Collige omnia, quae soletis: Praesidium amicorum. Cur, nisi quod turpis oratio est?
 
-            Totum genus hoc Zeno et qui ab eo sunt aut non potuerunt aut noluerunt, certe reliquerunt. Quorum sine causa fieri nihil putandum est. Duo Reges: constructio interrete. Istam voluptatem perpetuam quis potest praestare sapienti? Intellegi quidem, ut propter aliam quampiam rem, verbi gratia propter voluptatem, nos amemus; Mihi enim satis est, ipsis non satis. Neque solum ea communia, verum etiam paria esse dixerunt. Huius ego nunc auctoritatem sequens idem faciam. Non igitur bene.`
+            Totum genus hoc Zeno et qui ab eo sunt aut non potuerunt aut noluerunt, certe reliquerunt. Quorum sine causa fieri nihil putandum est. Duo Reges: constructio interrete. Istam voluptatem perpetuam quis potest praestare sapienti? Intellegi quidem, ut propter aliam quampiam rem, verbi gratia propter voluptatem, nos amemus; Mihi enim satis est, ipsis non satis. Neque solum ea communia, verum etiam paria esse dixerunt. Huius ego nunc auctoritatem sequens idem faciam. Non igitur bene. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tum Piso: Quoniam igitur aliquid omnes, quid Lucius noster? Quae si potest singula consolando levare, universa quo modo sustinebit? Hoc dixerit potius Ennius: Nimium boni est, cui nihil est mali. Tu quidem reddes;
+
+            Quod totum contra est. Quo studio Aristophanem putamus aetatem in litteris duxisse? Quae hic rei publicae vulnera inponebat, eadem ille sanabat. At hoc in eo M. Potius inflammat, ut coercendi magis quam dedocendi esse videantur. Ut proverbia non nulla veriora sint quam vestra dogmata. Cur igitur, cum de re conveniat, non malumus usitate loqui? Cur igitur, inquam, res tam dissimiles eodem nomine appellas?
+
+            Et nemo nimium beatus est; Quare obscurentur etiam haec, quae secundum naturam esse dicimus, in vita beata; Cur tantas regiones barbarorum pedibus obiit, tot maria transmisit? Quae contraria sunt his, malane? Sed haec omittamus; Collige omnia, quae soletis: Praesidium amicorum. Cur, nisi quod turpis oratio est?
+
+            Totum genus hoc Zeno et qui ab eo sunt aut non potuerunt aut noluerunt, certe reliquerunt. Quorum sine causa fieri nihil putandum est. Duo Reges: constructio interrete. Istam voluptatem perpetuam quis potest praestare sapienti? Intellegi quidem, ut propter aliam quampiam rem, verbi gratia propter voluptatem, nos amemus; Mihi enim satis est, ipsis non satis. Neque solum ea communia, verum etiam paria esse dixerunt. Huius ego nunc auctoritatem sequens idem faciam. Non igitur bene`
 
 
     // In this iteration we are judging width on characters instead of pixels. Will go back to pixels later.
-    let width = 45; // our width we use when making lines, etc.
+    let width = 70; // our width we use when making lines, etc.
     let line_height = 60;
     let container = document.querySelector('#container'); // This is the div we automatically populate that you can see in the html. We create more than one of these.
 
