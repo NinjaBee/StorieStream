@@ -12,21 +12,30 @@
         body {
             background-color: black;
             color: white;
-            overflow-x: hidden;
-            overflow-y: hidden;
+            /*overflow-x: hidden;*/
+            /*overflow-y: hidden;*/
         }
 
         #container {
             /*   border: 1px solid white; */
             width: 100%;
             height: 100%;
-            overflow: scroll;
+            /*overflow: hidden;*/
         }
 
         #container > div {
             white-space: nowrap;
-            overflow: hidden;
+            /*overflow: hidden;*/
         }
+
+        #container > div:nth-child(odd) {
+            background-color: gray;
+        }
+
+#container > div:nth-child(even) {
+  background-color: black;
+}
+
     </style>
 </head>
 <body>
@@ -99,18 +108,25 @@
         invertY(y) {
             return y / this.scale - this.center_y;
         }
+        transform(p) {
+            return new Point(this.center_x + this.scale * p.x,
+                            this.center_y + this.scale * p.y);
+        }
+        invert(p) {
+            return new Point(p.x / this.scale - this.center_x,
+                                p.y / this.scale - this.center_y);
+        }
     }
 
 
    // Making a class for point
     class Point {
-        constructor(x, y, t) {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.t = t || 0.0;
+        constructor(x=0, y=0) {
+            this.x = x;
+            this.y = y;
          }
         toString() {
-            return '(' + this.x + ', ' + this.y + ', ' + this.t + ')';
+            return '(' + this.x + ', ' + this.y + ')';
         }
     }
     class segmentPoint extends Point {
@@ -155,7 +171,7 @@
             let lines = splitText(text, width);
 
             // Creating a new global coordinate called gc.
-            let gc = new GlobalCoordinates(25, 25, 10);
+            let gc = new GlobalCoordinates(250, 250, 10);
 
             // Making the global coordinate (gc) accessible
             this.gc = gc;
@@ -211,28 +227,34 @@
                 // Might be pointless to have line_height
                 div.style.height = line_height + 'px';
                 // It is important that width be constant. When width is adustable by pixels this may not be needed.
-                div.style.width = '500px';
+                div.style.width = '200px';
                 // Add new div to our outter div "container"
                 container.appendChild(div);
+
+
+
             }
+            this.gc = new GlobalCoordinates(250, 250, 10);
+
         }
 
         // Right now I think all of these are based on an x/y coordinate in the center of the text
         // which is why it is starting out skewed I think.
         getPoint(t) {
             // these are some magic numbers.
-            let starting_point = {x: 0, y: 0};
+            let starting_point = new Point(0, 0);
             for (let i = 0; i < this.segments.length; ++i) {
                 if (t >= this.segments[i].min_t && t <= this.segments[i].max_t) {
                     // getX and getY is from our segments
-                    let x = this.segments[i].getX(t);
-                    let y = this.segments[i].getY(t);
-                    return {x: starting_point.x + x, y: starting_point.y + y};
+                    let x = starting_point.x + this.segments[i].getX(t);
+                    let y = starting_point.y + this.segments[i].getY(t);
+                    return this.gc.transform(new Point(x, y));
                 }
-                starting_point = {x: this.segments[i].xt(1.0),
-                                    y: this.segments[i].yt(1.0)};
+                starting_point.x += this.segments[i].xt(1.0);
+                starting_point.y += this.segments[i].yt(1.0);
+                //console.log(starting_point);
             }
-            return starting_point;
+            return this.gc.transform(starting_point);
         }
     }
 
@@ -253,12 +275,12 @@
 
 
     // In this iteration we are judging width on characters instead of pixels. Will go back to pixels later.
-    let width = 70; // our width we use when making lines, etc.
-    let line_height = 60;
+    let width = 30; // our width we use when making lines, etc.
+    let line_height = 25;
     let container = document.querySelector('#container'); // This is the div we automatically populate that you can see in the html. We create more than one of these.
 
 
-    text_path = new TextPath(text, container)
+    text_path = new TextPath(text, container);
 
 
     // function findSegment(t) {
@@ -298,9 +320,19 @@
     let current_t = 0.0;
     window.onwheel = function (evt) {
         current_t += 0.001*evt.deltaY;
+        if (current_t < 0) {
+            current_t = 0;
+        } else if (current_t > 1.0) {
+            current_t = 1.0;
+        }
         let current_pt = text_path.getPoint(current_t);
-        console.log('translate(' + (-current_pt.x) + ',' + (-current_pt.y) + ')');
-        container.style.transform = 'translate(' + (-current_pt.x) + 'px,' + (-current_pt.y) + 'px)';
+        console.log(current_pt);
+        //current_pt = text_path.gc.invert(current_pt);
+        container.style.transform = 'translate(' + (250-current_pt.x) + 'px,' + (250-current_pt.y) + 'px)';
+        //container.style.transform = 'translate(' + current_pt.x + 'px,' + current_pt.y + 'px)';
+
+        evt.preventDefault();
+        return false;
     }
 
 
