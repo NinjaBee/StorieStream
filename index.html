@@ -156,14 +156,20 @@
             });
 
             // Segment is starting at t of 0.8 and going until 1.0
-            let segment3 = new Segment(0.8, 1.0, function (t) {
+            let segment3 = new Segment(0.8, 0.9, function (t) {
                 return 100 * t;
             }, function (t) {
                 return 0.0;
             });
 
+            let segment4 = new Segment(0.9, 1.0, function (t) {
+                return 0.0;
+            }, function (t) {
+                return 100 * t;
+            });
+
             // Hard coding an array of segments. Once again, this will need to change.
-            this.segments = [segment1, segment2, segment3];
+            this.segments = [segment1, segment2, segment3, segment4];
             // simplifying segments for reference.
             let segments = this.segments;
 
@@ -191,6 +197,10 @@
                     if (segment_index < segments.length - 1) {
                         let end_x = segments[segment_index].xt(1.0);
                         let end_y = segments[segment_index].yt(1.0);
+
+
+                        // TODO FIX, USE A POINT NOT GC TO MOVE ALONG
+                        // SEE 253, 254
                         gc.center_x = gc.transformX(end_x);
                         gc.center_y = gc.transformY(end_y);
                         segment_index += 1;
@@ -246,6 +256,7 @@
             for (let i = 0; i < this.segments.length; ++i) {
                 if (t >= this.segments[i].min_t && t <= this.segments[i].max_t) {
                     // getX and getY is from our segments
+
                     let x = starting_point.x + this.segments[i].getX(t);
                     let y = starting_point.y + this.segments[i].getY(t);
                     return this.gc.transform(new Point(x, y));
@@ -328,7 +339,7 @@
         let current_pt = text_path.getPoint(current_t);
         console.log(current_pt);
         //current_pt = text_path.gc.invert(current_pt);
-        container.style.transform = 'translate(' + (250-current_pt.x) + 'px,' + (250-current_pt.y) + 'px)';
+        container.style.transform = 'translate(' + (text_path.gc.center_x-current_pt.x) + 'px,' + (text_path.gc.center_y-current_pt.y) + 'px)';
         //container.style.transform = 'translate(' + current_pt.x + 'px,' + current_pt.y + 'px)';
 
         evt.preventDefault();
